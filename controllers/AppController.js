@@ -2,7 +2,7 @@ import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
 const AppController = {
-  async getStatus(req, res) {
+  async getStatus (req, res) {
     const redisIsAlive = redisClient.isAlive();
     const dbIsAlive = dbClient.isAlive();
 
@@ -13,7 +13,7 @@ const AppController = {
     }
   },
 
-  async getStats(req, res) {
+  async getStats (req, res) {
     try {
       const usersCount = await dbClient.nbUsers();
       const filesCount = await dbClient.nbFiles();
