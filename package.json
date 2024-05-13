@@ -21,7 +21,7 @@
     "mongodb": "^3.5.9",
     "redis": "^2.8.0",
     "sha1": "^1.1.1",
-    "uuid": "^8.2.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.0",
@@ -39,5 +39,9 @@
     "eslint-plugin-jest": "^22.17.0",
     "request": "^2.88.0",
     "sinon": "^7.5.0"
+  },
+  "exports": {
+    "./v4": "./dist/esm-browser/v4.js",
+    "./v5": "./dist/esm-browser/v5.js"
   }
 }
