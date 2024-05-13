@@ -5,6 +5,9 @@ import AuthController from '../controllers/AuthController';
 
 const router = express.Router();
 
+const routeController = (app) => {
+  app.use('/', router);
+
 router.get('/status', (req, res) => {
   AppController.getStatus(req, res);
 });
