@@ -1,32 +1,32 @@
-import { v4 as uuidv4 } from 'uuid';
 import RedisClient from '../utils/redis';
+import { v4 as uuidv4 } from 'uuid';
 import DBClient from '../utils/db';
 
-const { ObjectId } = require('mongodb');
 const fs = require('fs');
+const { ObjectId } = require('mongodb');
 const mime = require('mime-types');
 const Bull = require('bull');
 
 class FilesController {
   static async postUpload(req, res) {
-    const fileQueue = new Bull('fileQueue');
-
-    const token = req.header('X-Token') || null;
-    if (!token) return res.status(401).send({ error: 'Unauthorized' });
+    const fileQueue = new Bull('fileQueue');    
 
     const redisToken = await RedisClient.get(`auth_${token}`);
     if (!redisToken) return res.status(401).send({ error: 'Unauthorized' });
 
-    const user = await DBClient.db
-      .collection('users')
-      .findOne({ _id: ObjectId(redisToken) });
-    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+    const token = req.header('X-Token') || null;
+    if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
     const fileName = req.body.name;
     if (!fileName) return res.status(400).send({ error: 'Missing name' });
 
     const fileType = req.body.type;
     if (!fileType || !['folder', 'file', 'image'].includes(fileType)) return res.status(400).send({ error: 'Missing type' });
+
+    const user = await DBClient.db
+      .collection('users')
+      .findOne({ _id: ObjectId(redisToken) });
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
 
     const fileData = req.body.data;
     if (!fileData && ['file', 'image'].includes(fileType)) return res.status(400).send({ error: 'Missing data' });
@@ -62,11 +62,11 @@ class FilesController {
       });
     }
 
-    const pathDir = process.env.FOLDER_PATH || '/tmp/files_manager';
-    const uuidFile = uuidv4();
-
     const buff = Buffer.from(fileData, 'base64');
     const pathFile = `${pathDir}/${uuidFile}`;
+
+    const pathDir = process.env.FOLDER_PATH || '/tmp/files_manager';
+    const uuidFile = uuidv4();
 
     await fs.mkdir(pathDir, { recursive: true }, (error) => {
       if (error) return res.status(400).send({ error: error.message });
@@ -109,7 +109,6 @@ class FilesController {
     if (!user) return res.status(401).send({ error: 'Unauthorized' });
 
     const idFile = req.params.id || '';
-    // if (!idFile) return res.status(404).send({ error: 'Not found' });
 
     const fileDocument = await DBClient.db
       .collection('files')
@@ -139,11 +138,7 @@ class FilesController {
     if (!user) return res.status(401).send({ error: 'Unauthorized' });
 
     const parentId = req.query.parentId || 0;
-    // parentId = parentId === '0' ? 0 : parentId;
-
     const pagination = req.query.page || 0;
-    // pagination = Number.isNaN(pagination) ? 0 : pagination;
-    // pagination = pagination < 0 ? 0 : pagination;
 
     const aggregationMatch = { $and: [{ parentId }] };
     let aggregateData = [
